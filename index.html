@@ -112,14 +112,50 @@ var STAGES=[
   ]}
 ];
 
-// Storage helpers
-function loadCtrl(){try{return JSON.parse(localStorage.getItem("hh-ctrl")||"null")||{globalOn:false,students:{}};}catch(e){return{globalOn:false,students:{}};}}
-function saveCtrl(d){try{localStorage.setItem("hh-ctrl",JSON.stringify(d));}catch(e){}}
-function loadProg(sid){try{return JSON.parse(localStorage.getItem("hh-p-"+sid)||"null");}catch(e){return null;}}
-function saveProg(sid,d){try{localStorage.setItem("hh-p-"+sid,JSON.stringify(d));}catch(e){}}
-function delProg(sid){try{localStorage.removeItem("hh-p-"+sid);}catch(e){}}
-function getProgOrDefault(sid){return loadProg(sid)||{stage:1,stageScores:[],totalScore:0,completed:false,badges:[]};}
-function canPlay(sid){var c=loadCtrl();return c.globalOn||c.students[sid]==="on";}
+// ── SHARED IN-MEMORY STORE ──────────────────────────────────────────────
+// All teacher & student state lives here — same JS runtime, instantly shared.
+// localStorage is used only as a persistence backup (e.g. page reload).
+
+var MEM = {
+  ctrl: null,   // {globalOn:bool, students:{sid:"on"|"off"}}
+  prog: {}      // {sid: progressObject}
+};
+
+function _lsGet(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
+function _lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function _lsDel(k){try{localStorage.removeItem(k);}catch(e){}}
+
+function loadCtrl(){
+  if(MEM.ctrl!==null) return MEM.ctrl;
+  var saved=_lsGet("hh-ctrl");
+  MEM.ctrl=saved||{globalOn:false,students:{}};
+  return MEM.ctrl;
+}
+function saveCtrl(d){
+  MEM.ctrl=d;
+  _lsSet("hh-ctrl",d);
+}
+function loadProg(sid){
+  if(MEM.prog[sid]!==undefined) return MEM.prog[sid];
+  var saved=_lsGet("hh-p-"+sid);
+  MEM.prog[sid]=saved||null;
+  return MEM.prog[sid];
+}
+function saveProg(sid,d){
+  MEM.prog[sid]=d;
+  _lsSet("hh-p-"+sid,d);
+}
+function delProg(sid){
+  MEM.prog[sid]=null;
+  _lsDel("hh-p-"+sid);
+}
+function getProgOrDefault(sid){
+  return loadProg(sid)||{stage:1,stageScores:[],totalScore:0,completed:false,badges:[]};
+}
+function canPlay(sid){
+  var c=loadCtrl();
+  return !!(c.globalOn || c.students[sid]==="on");
+}
 
 // App state
 var S={
@@ -337,7 +373,7 @@ function renderWaiting(){
   var pulse=div({padding:"16px 32px",color:"#FBBF24",fontSize:"15px",fontWeight:700,background:"#111827",borderRadius:"20px",border:"1px solid #374151",marginBottom:"12px"});
   pulse.textContent="💫 Waiting for Mr. Verma to start the game…"; pulse.className="pulsing";
   w.appendChild(pulse);
-  w.appendChild(mk("p",{style:{color:"#374151",fontSize:"12px",marginBottom:"28px"}},"This page checks automatically every 5 seconds"));
+  w.appendChild(mk("p",{style:{color:"#374151",fontSize:"12px",marginBottom:"28px"}},"This page checks automatically every second"));
   w.appendChild(btn("← Back to Login",
     {padding:"10px 24px",background:"#111827",color:"#6B7280",fontSize:"13px",fontWeight:700,borderRadius:"12px",border:"1px solid #1F2937",cursor:"pointer",fontFamily:"'Nunito',sans-serif"},
     function(){clearInterval(refreshTimer);setState({screen:"login",user:null,role:null});}));
@@ -400,7 +436,11 @@ function renderTeacher(){
     gc.appendChild(gcl);
     var gcr=div({display:"flex",gap:"10px",alignItems:"center"});
     gcr.appendChild(btn("⚠ Reset All Progress",{padding:"9px 16px",background:"#1C0808",color:"#FCA5A5",fontSize:"12px",fontWeight:800,borderRadius:"10px",border:"1px solid #7F1D1D",cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){STUDENTS.forEach(function(s){delProg(s.id);});render();}));
-    gcr.appendChild(btn(ctrl.globalOn?"✓ ALL ON":"○ ALL OFF",{padding:"11px 28px",fontSize:"14px",fontWeight:800,borderRadius:"12px",background:ctrl.globalOn?"#064E3B":"#1F2937",color:ctrl.globalOn?"#10B981":"#9CA3AF",border:"2px solid "+(ctrl.globalOn?"#10B981":"#374151"),cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){var n=Object.assign({},ctrl,{globalOn:!ctrl.globalOn});saveCtrl(n);render();}));
+    gcr.appendChild(btn(ctrl.globalOn?"✓ ALL ON":"○ ALL OFF",{padding:"11px 28px",fontSize:"14px",fontWeight:800,borderRadius:"12px",background:ctrl.globalOn?"#064E3B":"#1F2937",color:ctrl.globalOn?"#10B981":"#9CA3AF",border:"2px solid "+(ctrl.globalOn?"#10B981":"#374151"),cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){
+      var current=loadCtrl();
+      saveCtrl(Object.assign({},current,{globalOn:!current.globalOn}));
+      render();
+    }));
     gc.appendChild(gcr); body.appendChild(gc);
     body.appendChild(mk("p",{style:{color:"#4B5563",fontSize:"11px",fontWeight:700,letterSpacing:"1px",marginBottom:"10px"}},"INDIVIDUAL CONTROLS"+(ctrl.globalOn?" (Global is ON — overrides all)":"")));
     var grid=div({display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:"10px"});
@@ -415,7 +455,13 @@ function renderTeacher(){
       var rr=div({display:"flex",gap:"6px"});
       if(!ctrl.globalOn){
         (function(sid,isActive){
-          rr.appendChild(btn(isActive?"ON":"OFF",{padding:"5px 12px",fontSize:"12px",fontWeight:800,borderRadius:"8px",background:isActive?"#022C22":"#1F2937",color:isActive?"#10B981":"#6B7280",border:"1px solid "+(isActive?"#10B981":"#374151"),cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){var ss=Object.assign({},ctrl.students);ss[sid]=isActive?"off":"on";saveCtrl(Object.assign({},ctrl,{students:ss}));render();}));
+          rr.appendChild(btn(isActive?"ON":"OFF",{padding:"5px 12px",fontSize:"12px",fontWeight:800,borderRadius:"8px",background:isActive?"#022C22":"#1F2937",color:isActive?"#10B981":"#6B7280",border:"1px solid "+(isActive?"#10B981":"#374151"),cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){
+            var fresh=loadCtrl();
+            var ss=Object.assign({},fresh.students);
+            ss[sid]=isActive?"off":"on";
+            saveCtrl(Object.assign({},fresh,{students:ss}));
+            render();
+          }));
         })(s.id,a);
       }
       (function(sid){
@@ -881,9 +927,18 @@ function renderLeaderboardScreen(){
 // ══════════════════════════════════════════
 function startStudentRefresh(){
   clearInterval(refreshTimer);
+  // Check immediately on login — no waiting for first tick
+  if(S.role==="student" && S.screen==="waiting" && canPlay(S.user.id)){
+    setState({screen:"stagemap"});
+    return;
+  }
+  // Then poll every 1 second
   refreshTimer=setInterval(function(){
-    if(S.role==="student"&&S.screen==="waiting"&&canPlay(S.user.id)){setState({screen:"stagemap"});}
-  },5000);
+    if(S.role==="student" && S.screen==="waiting" && canPlay(S.user.id)){
+      clearInterval(refreshTimer);
+      setState({screen:"stagemap"});
+    }
+  },1000);
 }
 
 function render(){
