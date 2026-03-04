@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Heart Heroes — Year 8 Y08I</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#080C14;font-family:'Nunito',sans-serif;color:#F1F5F9;overflow-x:hidden;min-height:100vh;}
+h1,h2,h3{font-family:'Fredoka One',cursive;letter-spacing:.5px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@keyframes floatAnim{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes pulseAnim{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.fadeUp{animation:fadeUp .45s ease forwards}
+.popIn{animation:popIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
+.floating{animation:floatAnim 3.5s ease-in-out infinite}
+.pulsing{animation:pulseAnim 2s ease-in-out infinite}
+button{border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;outline:none;transition:all .18s ease;}
+button:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.1);}
+button:active:not(:disabled){transform:translateY(0);}
+button:disabled{opacity:.45;cursor:not-allowed;}
+input{background:#080C14;border:2px solid #1F2937;border-radius:12px;color:#F1F5F9;font-family:'Nunito',sans-serif;font-size:15px;padding:12px 16px;width:100%;outline:none;transition:border-color .2s,box-shadow .2s;}
+input:focus{border-color:#2DD4BF;box-shadow:0 0 0 3px rgba(45,212,191,.15);}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:#080C14;}
+::-webkit-scrollbar-thumb{background:#374151;border-radius:3px;}
+table{border-collapse:collapse;width:100%;}
+th{font-size:11px;letter-spacing:1.2px;color:#4B5563;padding:8px 12px;text-align:left;white-space:nowrap;}
+td{padding:9px 12px;font-size:13px;border-top:1px solid #1F2937;}
+.tab-btn{background:transparent;border:none;border-bottom:3px solid transparent;color:#4B5563;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;padding:12px 20px;cursor:pointer;transition:all .2s;}
+.tab-btn:hover{color:#94A3B8;transform:none;filter:none;}
+.tab-btn.active{color:#2DD4BF;border-bottom-color:#2DD4BF;}
+#app{min-height:100vh;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var TEACHER={id:"teacher",username:"sushil.verma",password:"Teacher@GEMS2024",name:"Mr. Sushil Verma"};
+
+var STUDENTS=[
+  {id:"s01",name:"Albraa",   full:"Albraa Abdelaleem"},
+  {id:"s02",name:"Camellia", full:"Camellia Ahmed Eldahmy"},
+  {id:"s03",name:"Maaz",     full:"Maaz Akhter"},
+  {id:"s04",name:"Denise",   full:"Denise Alcantara"},
+  {id:"s05",name:"Rayyan",   full:"Rayyan Ali Khan"},
+  {id:"s06",name:"Ethan",    full:"Ethan Azzi"},
+  {id:"s07",name:"Lucas",    full:"Lucas Braganza"},
+  {id:"s08",name:"Adriana",  full:"Adriana Centenera"},
+  {id:"s09",name:"Rafeef",   full:"Rafeef Darwish"},
+  {id:"s10",name:"Liam",     full:"Liam Eleria"},
+  {id:"s11",name:"Tamim",    full:"Tamim Elmallah"},
+  {id:"s12",name:"Alina",    full:"Alina Gadawala"},
+  {id:"s13",name:"Ameera",   full:"Ameera Hendra"},
+  {id:"s14",name:"Ansar",    full:"Ansar Ibraim"},
+  {id:"s15",name:"Nailah",   full:"Nailah Irfan Ali"},
+  {id:"s16",name:"Haya",     full:"Haya Khashroom"},
+  {id:"s17",name:"Nasreen",  full:"Nasreen Mahmood"},
+  {id:"s18",name:"Ayham",    full:"Ayham Mohamed"},
+  {id:"s19",name:"Sara",     full:"Sara Mohamed Rumy"},
+  {id:"s20",name:"Ronya",    full:"Ronya Muenster"},
+  {id:"s21",name:"Aseel",    full:"Aseel Omer"},
+  {id:"s22",name:"Kabir",    full:"Kabir Prasad"},
+  {id:"s23",name:"Maisha",   full:"Maisha Safreen"},
+  {id:"s24",name:"Sally",    full:"Sally Samara"},
+  {id:"s25",name:"Hala",     full:"Hala Shadi Lami Jazazi"},
+  {id:"s26",name:"Talia",    full:"Talia Shafik Soliman"},
+  {id:"s27",name:"Huzaifa",  full:"Huzaifa Shahbaz"},
+  {id:"s28",name:"Dhanvee",  full:"Dhanvee Sharma"},
+  {id:"s29",name:"Mohammed", full:"Mohammed Hamdan Siddiqui"},
+  {id:"s30",name:"Ranvir",   full:"Ranvir Sudhakaran"},
+  {id:"s31",name:"Ahmed",    full:"Ahmed Taman"}
+];
+
+var STAGES=[
+  {id:1,title:"Kindness Seeds",emoji:"🌱",color:"#10B981",dark:"#022C22",badge:"Kindness Seeder",tagline:"Plant the seeds of kindness — watch them grow",questions:[
+    {q:"You notice a new student eating lunch alone and looking sad. What do you do?",opts:["Ignore them — you don't know them","Invite them to sit with your group and introduce yourself","Tell your friends about the lonely student"],correct:1,explain:"Inviting someone in shows kindness. Small actions can change someone's whole day!"},
+    {q:"Your classmate forgot their lunch today. You have extra snacks. What do you do?",opts:["Eat your snacks quickly so you don't have to share","Tell the teacher and walk away","Offer to share your snacks with them"],correct:2,explain:"Sharing shows you care. Kindness doesn't have to cost much!"},
+    {q:"A student drops all their books in the hallway. Everyone is rushing past. What do you do?",opts:["Step over the books like everyone else","Watch to see if someone else helps first","Stop and help them pick everything up"],correct:2,explain:"Being kind means acting even when it's inconvenient. You could be the one person who makes a difference!"},
+    {q:"Your friend spent hours on an art project but it didn't turn out how they wanted. What do you say?",opts:["\"Yeah it doesn't look great. Better luck next time.\"","\"I can see how much effort you put in — what were you going for?\"","\"At least you tried I guess.\""],correct:1,explain:"True kindness finds what's real to appreciate while supporting the person's feelings."},
+    {q:"You got the last spot on the school trip. A classmate who really wanted to go is clearly disappointed. What do you do?",opts:["Feel guilty but say nothing","Tease them about missing out","\"I know you really wanted to come — that must be really disappointing.\""],correct:2,explain:"Recognising others' feelings without being asked is a powerful act of kindness."}
+  ]},
+  {id:2,title:"Empathy Explorer",emoji:"💙",color:"#3B82F6",dark:"#0C1E3A",badge:"Empathy Explorer",tagline:"Walk in someone else's shoes",questions:[
+    {q:"A classmate is visibly upset after failing a test and trying not to cry. What are they most likely feeling?",opts:["Happy — they can retake it later","Embarrassed, disappointed, and worried about what others think","Angry at the teacher for making it hard"],correct:1,explain:"Empathy means understanding that failing can feel very personal. Always imagine how you'd feel in their shoes."},
+    {q:"Your friend suddenly becomes very quiet and withdrawn. They used to laugh a lot. What's the most empathetic response?",opts:["\"You're being boring lately.\"","Ignore it — they'll get over it","\"Are you okay? I've noticed you seem a bit down — I'm here if you want to talk.\""],correct:2,explain:"Empathy means noticing changes in others and creating a safe space for them to open up."},
+    {q:"A student who moved from another country is struggling with English. They seem embarrassed by their mistakes. What do you do?",opts:["Snicker with your friends about their mistakes","Do nothing — it's not your problem","Speak clearly and warmly offer to help them understand"],correct:2,explain:"Moving countries takes enormous courage. Your patience and kindness means more than you know."},
+    {q:"Two of your friends have had an argument. One comes to you angry, the other is upset. What's the best approach?",opts:["Take sides with whoever you're closer to","Listen to both perspectives without judging and help them understand each other","Spread what you've heard to other friends"],correct:1,explain:"True empathy means trying to understand multiple perspectives — not just the easiest one."},
+    {q:"Your teacher seems stressed and makes a small mistake on the board. The class starts laughing. What do you do?",opts:["Laugh loudest to fit in","Point out all their other mistakes too","Quietly say 'No worries, happens to everyone' and refocus the class"],correct:2,explain:"Teachers are human too. Empathy has no age limit — showing kindness to adults shows extraordinary character."}
+  ]},
+  {id:3,title:"Respect Ranger",emoji:"🤝",color:"#F59E0B",dark:"#1C1200",badge:"Respect Ranger",tagline:"Honour others — and yourself",questions:[
+    {q:"During a group discussion, a classmate shares an idea you completely disagree with. What do you do?",opts:["Roll your eyes and say 'That's a terrible idea'","Interrupt them loudly with your own idea","\"I see your point — I think differently because…\" and explain your view calmly"],correct:2,explain:"Respect means disagreeing with ideas, not attacking the person. You can be honest AND kind."},
+    {q:"A student from a different culture celebrates a holiday you've never heard of. What's the respectful response?",opts:["Say 'That sounds weird'","Ask them to tell you more about it with genuine curiosity","Ignore it completely"],correct:1,explain:"Curiosity and openness are signs of deep respect. Learning about others enriches your own world."},
+    {q:"During a presentation, one student is nervous and speaking quietly. Some classmates start chatting. What do you do?",opts:["Join the chatting — it's boring anyway","Stay quiet yourself but let others chat","Politely ask others to be quiet and give the presenter your full attention"],correct:2,explain:"It takes courage to present. Giving your full attention honours that courage."},
+    {q:"You borrow your friend's pen and accidentally break it. What do you do?",opts:["Return it without saying anything","Tell them what happened, apologise sincerely, and offer to replace it","Blame it on someone else"],correct:1,explain:"Respect includes taking responsibility for your actions. An honest apology is worth more than any excuse."},
+    {q:"You and a classmate are arguing about a football team and getting heated. What's the respectful way to handle this?",opts:["Keep arguing until they admit you're right","Accept that people can have different opinions and agree to disagree","Get other friends involved to back you up"],correct:1,explain:"Respect means accepting that not everyone has to agree with you — and that's perfectly fine!"}
+  ]},
+  {id:4,title:"Heart Challenge",emoji:"⭐",color:"#EC4899",dark:"#1C0010",badge:"Compassion Champion",tagline:"Real-world challenges — show your heart",questions:[
+    {q:"You're in a group project and one member isn't contributing. Others want to report them immediately. What's best?",opts:["Immediately tell the teacher","Do their work for them silently","Have a private, kind conversation first to understand if something is wrong"],correct:2,explain:"Before assuming laziness, consider that something difficult might be happening in their life. Check in first."},
+    {q:"Someone is being bullied in a group chat you're part of. What do you do?",opts:["React with laughing emojis to fit in","Stay silent — it's not your business","Privately message the person to show support AND report it to a trusted adult"],correct:2,explain:"Online or offline, standing by while someone is hurt is a choice too. A private message of support can mean everything."},
+    {q:"A student is always left out of break time games. You see them watching from the side every day. What do you do?",opts:["Nothing — your friend group is full","Ask your friends to include them and invite the student to join","Tell them to find other friends"],correct:1,explain:"Inclusion is active, not passive. It takes true leadership to open doors for others."},
+    {q:"Your classmate made a mistake in class and looks humiliated. What can you do?",opts:["Laugh with others","Bring it up again later for a laugh","After class, quietly say 'That happens to everyone — you handled it really well'"],correct:2,explain:"A quiet moment of solidarity can erase embarrassment. The biggest kindness is often the most private."},
+    {q:"You witness a friend say something hurtful to another student without meaning harm. What do you do?",opts:["Ignore it — your friend didn't mean it","Publicly shame your friend in front of everyone","Comfort the hurt student first, then privately talk to your friend about why their words mattered"],correct:2,explain:"Good people can say hurtful things without realising. Address both sides thoughtfully — comfort first, then educate."}
+  ]},
+  {id:5,title:"Hero of Hearts",emoji:"🏆",color:"#F97316",dark:"#1A0800",badge:"Heart Hero",tagline:"The ultimate test — become a true Heart Hero",questions:[
+    {q:"Over several weeks, a student has become isolated and stopped smiling. What do you do?",opts:["Assume it's just a phase","Gossip about it with others","Speak to your form tutor AND continue being kind to the student daily"],correct:2,explain:"Recognising when someone needs professional support is the highest form of empathy. Telling a trusted adult is brave, not betrayal."},
+    {q:"You're leading a group activity. A quieter member keeps getting talked over. What do you do?",opts:["Let the louder voices dominate","Make all decisions yourself","Specifically invite the quieter member: 'I'd really love to hear what you think'"],correct:2,explain:"True leadership means ensuring every voice is heard. Amplifying quieter voices creates a more respectful space."},
+    {q:"You've had a bad day and snapped at a classmate. They look hurt. What do you do?",opts:["Pretend it didn't happen","Justify it because you were in a bad mood","\"I'm sorry — I was having a rough day and I shouldn't have taken it out on you.\""],correct:2,explain:"Being a Heart Hero means taking responsibility even when uncomfortable. Genuine apologies strengthen relationships."},
+    {q:"Your class is planning a celebration. Suggestions don't consider one student's cultural needs and they've gone quiet. What do you say?",opts:["Say nothing — not your responsibility","Tell that student to just go along with it","\"Let's make sure everyone can enjoy this — has everyone's preferences been considered?\""],correct:2,explain:"Inclusion means proactively thinking about everyone, especially those who might feel uncomfortable speaking up."},
+    {q:"You've completed this game. You now see a student in the corridor being excluded. What do you do?",opts:["Walk past — you've done your kindness work for today","Only act kindly when a teacher is watching","Apply everything you've learned: acknowledge, include, and stand up — every single day"],correct:2,explain:"True Heart Heroes don't just act kind in games. They carry these values into every hallway, every classroom, every day. YOU are that hero."}
+  ]}
+];
+
+// Storage helpers
+function loadCtrl(){try{return JSON.parse(localStorage.getItem("hh-ctrl")||"null")||{globalOn:false,students:{}};}catch(e){return{globalOn:false,students:{}};}}
+function saveCtrl(d){try{localStorage.setItem("hh-ctrl",JSON.stringify(d));}catch(e){}}
+function loadProg(sid){try{return JSON.parse(localStorage.getItem("hh-p-"+sid)||"null");}catch(e){return null;}}
+function saveProg(sid,d){try{localStorage.setItem("hh-p-"+sid,JSON.stringify(d));}catch(e){}}
+function delProg(sid){try{localStorage.removeItem("hh-p-"+sid);}catch(e){}}
+function getProgOrDefault(sid){return loadProg(sid)||{stage:1,stageScores:[],totalScore:0,completed:false,badges:[]};}
+function canPlay(sid){var c=loadCtrl();return c.globalOn||c.students[sid]==="on";}
+
+// App state
+var S={
+  screen:"login",user:null,role:null,
+  loginMode:"student",selectedStudent:"",teacherUser:"",teacherPw:"",loginError:"",
+  dropdownOpen:false,dropdownSearch:"",
+  teacherTab:"control",
+  stageId:1,qIdx:0,selectedOpt:null,revealed:false,stagePts:0
+};
+var refreshTimer=null;
+
+function setState(patch){
+  for(var k in patch) S[k]=patch[k];
+  render();
+}
+
+// ── STYLE HELPERS ──
+function s(obj){
+  return Object.keys(obj).map(function(k){
+    return k.replace(/([A-Z])/g,function(m){return"-"+m.toLowerCase();})+":"+obj[k];
+  }).join(";");
+}
+
+function mk(tag,attrs,html){
+  var e=document.createElement(tag);
+  if(attrs) for(var k in attrs){
+    if(k==="style" && typeof attrs[k]==="object"){e.style.cssText=s(attrs[k]);}
+    else if(k.startsWith("on")){e.addEventListener(k.slice(2).toLowerCase(),attrs[k]);}
+    else if(k==="className"){e.className=attrs[k];}
+    else{e[k]=attrs[k];}
+  }
+  if(html!==undefined){
+    if(typeof html==="string"){e.innerHTML=html;}
+    else if(Array.isArray(html)){html.forEach(function(c){if(c) e.appendChild(typeof c==="string"?document.createTextNode(c):c);});}
+    else if(html instanceof Node){e.appendChild(html);}
+  }
+  return e;
+}
+
+function div(style,children){
+  var e=document.createElement("div");
+  if(style && typeof style==="object") e.style.cssText=s(style);
+  else if(style && typeof style==="string") e.className=style;
+  if(children!==undefined){
+    if(typeof children==="string") e.innerHTML=children;
+    else if(Array.isArray(children)) children.forEach(function(c){if(c) e.appendChild(typeof c==="string"?document.createTextNode(c):c);});
+    else if(children instanceof Node) e.appendChild(children);
+  }
+  return e;
+}
+
+function card(style,children){
+  var e=div(Object.assign({background:"#111827",borderRadius:"20px",border:"1px solid #1F2937",boxShadow:"0 4px 24px rgba(0,0,0,.4)"},style||{}),children);
+  return e;
+}
+
+function btn(text,style,onClick,disabled){
+  var e=mk("button",{style:style,onClick:onClick,disabled:!!disabled});
+  e.innerHTML=text;
+  return e;
+}
+
+function lbl(text){
+  return mk("div",{style:{display:"block",color:"#6B7280",fontSize:"12px",fontWeight:700,marginBottom:"6px",letterSpacing:"1px"}},text);
+}
+
+// ══════════════════════════════════════════
+// RENDER LOGIN
+// ══════════════════════════════════════════
+function renderLogin(){
+  var mode=S.loginMode;
+  var wrap=div({minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"radial-gradient(ellipse at 50% 0%,#0D2137 0%,#080C14 70%)",padding:"20px"});
+  var c=card({width:"100%",maxWidth:"460px",padding:"40px",textAlign:"center"});
+  c.className="fadeUp";
+
+  var ico=div({fontSize:"72px",marginBottom:"12px"});
+  ico.textContent="💖"; ico.className="floating";
+  c.appendChild(ico);
+  c.appendChild(mk("h1",{style:{fontSize:"2.2rem",color:"#2DD4BF",marginBottom:"6px"}},"Heart Heroes"));
+  c.appendChild(mk("p",{style:{color:"#4B5563",fontSize:"14px",marginBottom:"4px"}},"Year 8 · Form Y08I · GEMS Founders School"));
+  c.appendChild(mk("p",{style:{color:"#374151",fontSize:"12px",marginBottom:"24px"}},"Kindness · Empathy · Respect"));
+
+  // Mode toggle
+  var tog=div({display:"flex",background:"#080C14",borderRadius:"12px",padding:"4px",marginBottom:"24px",border:"1px solid #1F2937"});
+  [["student","🎮 I'm a Student"],["teacher","🔐 Teacher Login"]].forEach(function(pair){
+    var k=pair[0],label=pair[1];
+    var b=mk("button",{
+      style:{flex:1,padding:"10px",fontSize:"13px",fontWeight:800,borderRadius:"9px",cursor:"pointer",
+             background:mode===k?"#111827":"transparent",color:mode===k?"#2DD4BF":"#4B5563",
+             border:mode===k?"1px solid #1F2937":"none",transition:"all .18s",
+             fontFamily:"'Nunito',sans-serif"},
+      onClick:function(){setState({loginMode:k,loginError:"",dropdownOpen:false});}
+    },label);
+    tog.appendChild(b);
+  });
+  c.appendChild(tog);
+
+  if(mode==="student"){
+    var chosen=STUDENTS.find(function(s){return s.id===S.selectedStudent;});
+    var fd=div({textAlign:"left"});
+    fd.className="fadeUp";
+    fd.appendChild(lbl("YOUR NAME"));
+
+    // Dropdown
+    var dw=div({position:"relative",marginBottom:"16px"});
+    var trigger=div({
+      background:"#080C14",border:"2px solid "+(chosen?"#2DD4BF":"#1F2937"),
+      borderRadius:"12px",padding:"12px 16px",cursor:"pointer",
+      display:"flex",justifyContent:"space-between",alignItems:"center"
+    });
+    trigger.innerHTML='<span style="color:'+(chosen?"#F1F5F9":"#374151")+';font-size:15px;font-weight:'+(chosen?700:400)+'">'+(chosen?chosen.full:"Select your name…")+'</span><span style="color:#4B5563;font-size:16px;transform:'+(S.dropdownOpen?"rotate(180deg)":"rotate(0)")+';transition:transform .2s">▾</span>';
+    trigger.addEventListener("click",function(){setState({dropdownOpen:!S.dropdownOpen});});
+    dw.appendChild(trigger);
+
+    if(S.dropdownOpen){
+      var panel=div({position:"absolute",top:"calc(100% + 6px)",left:0,right:0,background:"#111827",border:"1px solid #1F2937",borderRadius:"12px",zIndex:100,boxShadow:"0 12px 32px rgba(0,0,0,.6)",overflow:"hidden"});
+      var srch=mk("input",{type:"text",placeholder:"🔍 Type to search…",value:S.dropdownSearch||"",
+        style:{borderRadius:"0",border:"none",borderBottom:"1px solid #1F2937",padding:"10px 14px",fontSize:"14px",
+               background:"#080C14",color:"#F1F5F9",width:"100%",outline:"none",fontFamily:"'Nunito',sans-serif"}});
+      srch.addEventListener("input",function(e){setState({dropdownSearch:e.target.value});});
+      srch.addEventListener("click",function(e){e.stopPropagation();});
+      panel.appendChild(srch);
+
+      var list=div({maxHeight:"210px",overflowY:"auto"});
+      var filtered=STUDENTS.filter(function(st){return st.full.toLowerCase().includes((S.dropdownSearch||"").toLowerCase());});
+      if(!filtered.length){
+        list.appendChild(mk("div",{style:{padding:"12px 16px",color:"#374151",fontSize:"13px"}},"No students found"));
+      }
+      filtered.forEach(function(st){
+        var item=mk("div",{
+          style:{padding:"11px 16px",cursor:"pointer",fontSize:"14px",fontWeight:600,
+                 color:S.selectedStudent===st.id?"#2DD4BF":"#D1D5DB",
+                 background:S.selectedStudent===st.id?"#0C2A26":"transparent",
+                 borderBottom:"1px solid #1F2937",transition:"background .15s"}
+        },st.full);
+        item.addEventListener("mouseenter",function(){this.style.background="#1F2937";});
+        item.addEventListener("mouseleave",function(){this.style.background=S.selectedStudent===st.id?"#0C2A26":"transparent";});
+        item.addEventListener("click",function(){setState({selectedStudent:st.id,dropdownOpen:false,dropdownSearch:"",loginError:""});});
+        list.appendChild(item);
+      });
+      panel.appendChild(list);
+      dw.appendChild(panel);
+    }
+    fd.appendChild(dw);
+
+    if(chosen){
+      var greet=div({background:"#0C2A26",border:"1px solid #065F46",borderRadius:"12px",padding:"11px 16px",marginBottom:"16px"});
+      greet.className="fadeUp";
+      greet.innerHTML='<p style="color:#6EE7B7;font-size:13px;font-weight:700">👋 Hello, '+chosen.name+'! Ready to become a Heart Hero?</p>';
+      fd.appendChild(greet);
+    }
+    if(S.loginError){
+      var eb=div({background:"#1C0808",border:"1px solid #7F1D1D",borderRadius:"10px",padding:"10px 14px",marginBottom:"12px"});
+      eb.innerHTML='<p style="color:#FCA5A5;font-size:14px">'+S.loginError+'</p>';
+      fd.appendChild(eb);
+    }
+    fd.appendChild(btn("Start My Adventure →",
+      {width:"100%",padding:"14px",background:chosen?"linear-gradient(135deg,#2DD4BF,#0EA5E9)":"#1F2937",
+       color:chosen?"#080C14":"#4B5563",fontSize:"16px",fontWeight:800,borderRadius:"14px",
+       cursor:chosen?"pointer":"not-allowed",fontFamily:"'Nunito',sans-serif",border:"none",
+       transition:"all .18s",marginTop:"4px"},
+      function(){
+        if(!chosen)return;
+        setState({user:chosen,role:"student",screen:canPlay(chosen.id)?"stagemap":"waiting"});
+        startStudentRefresh();
+      },!chosen));
+    c.appendChild(fd);
+
+  } else {
+    var fd2=div({textAlign:"left"});
+    fd2.className="fadeUp";
+    fd2.appendChild(mk("p",{style:{color:"#94A3B8",fontSize:"14px",marginBottom:"18px"}},"Enter your teacher credentials to access the dashboard."));
+    fd2.appendChild(lbl("USERNAME"));
+    var i1=mk("input",{type:"text",placeholder:"sushil.verma",value:S.teacherUser||""});
+    i1.addEventListener("input",function(e){S.teacherUser=e.target.value;});
+    fd2.appendChild(i1);
+    fd2.appendChild(div({marginBottom:"14px"}));
+    fd2.appendChild(lbl("PASSWORD"));
+    var i2=mk("input",{type:"password",placeholder:"Enter your password",value:S.teacherPw||""});
+    i2.addEventListener("input",function(e){S.teacherPw=e.target.value;});
+    fd2.appendChild(i2);
+    fd2.appendChild(div({marginBottom:"18px"}));
+    if(S.loginError){
+      var eb2=div({background:"#1C0808",border:"1px solid #7F1D1D",borderRadius:"10px",padding:"10px 14px",marginBottom:"12px"});
+      eb2.innerHTML='<p style="color:#FCA5A5;font-size:14px">'+S.loginError+'</p>';
+      fd2.appendChild(eb2);
+    }
+    var tBtn=btn("Enter Dashboard →",
+      {width:"100%",padding:"14px",background:"linear-gradient(135deg,#7C3AED,#4F46E5)",color:"#fff",
+       fontSize:"16px",fontWeight:800,borderRadius:"14px",fontFamily:"'Nunito',sans-serif",border:"none",cursor:"pointer"},
+      function(){
+        var u=(S.teacherUser||"").trim().toLowerCase();
+        var pw=(S.teacherPw||"").trim();
+        if(u===TEACHER.username&&pw===TEACHER.password){setState({user:TEACHER,role:"teacher",screen:"teacher",loginError:""});}
+        else setState({loginError:"Incorrect credentials. Please try again."});
+      });
+    [i1,i2].forEach(function(inp){inp.addEventListener("keydown",function(e){if(e.key==="Enter")tBtn.click();});});
+    fd2.appendChild(tBtn);
+    c.appendChild(fd2);
+  }
+  wrap.appendChild(c);
+  return wrap;
+}
+
+// ══════════════════════════════════════════
+// RENDER WAITING
+// ══════════════════════════════════════════
+function renderWaiting(){
+  var w=div({minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"#080C14",padding:"20px",textAlign:"center"});
+  var ico=div({fontSize:"88px",marginBottom:"20px"});
+  ico.textContent="⏳"; ico.className="floating";
+  w.appendChild(ico);
+  w.appendChild(mk("h1",{style:{fontSize:"2rem",color:"#2DD4BF",marginBottom:"10px"}},"Almost there, "+S.user.name+"!"));
+  w.appendChild(mk("p",{style:{color:"#4B5563",fontSize:"15px",maxWidth:"420px",lineHeight:"1.7",marginBottom:"28px"}},"The game hasn't started for you yet. Mr. Sushil Verma will activate it shortly."));
+  var pulse=div({padding:"16px 32px",color:"#FBBF24",fontSize:"15px",fontWeight:700,background:"#111827",borderRadius:"20px",border:"1px solid #374151",marginBottom:"12px"});
+  pulse.textContent="💫 Waiting for Mr. Verma to start the game…"; pulse.className="pulsing";
+  w.appendChild(pulse);
+  w.appendChild(mk("p",{style:{color:"#374151",fontSize:"12px",marginBottom:"28px"}},"This page checks automatically every 5 seconds"));
+  w.appendChild(btn("← Back to Login",
+    {padding:"10px 24px",background:"#111827",color:"#6B7280",fontSize:"13px",fontWeight:700,borderRadius:"12px",border:"1px solid #1F2937",cursor:"pointer",fontFamily:"'Nunito',sans-serif"},
+    function(){clearInterval(refreshTimer);setState({screen:"login",user:null,role:null});}));
+  return w;
+}
+
+// ══════════════════════════════════════════
+// RENDER TEACHER
+// ══════════════════════════════════════════
+function renderTeacher(){
+  var tab=S.teacherTab||"control";
+  var ctrl=loadCtrl();
+  var allProg={};
+  STUDENTS.forEach(function(s){allProg[s.id]=getProgOrDefault(s.id);});
+  var done=STUDENTS.filter(function(s){return allProg[s.id].completed;}).length;
+  var active=STUDENTS.filter(function(s){return ctrl.globalOn||ctrl.students[s.id]==="on";}).length;
+  var inProg=STUDENTS.filter(function(s){return !allProg[s.id].completed&&(allProg[s.id].stageScores||[]).length>0;}).length;
+
+  var page=div({minHeight:"100vh",background:"#080C14"});
+
+  // Header
+  var hdr=div({background:"linear-gradient(135deg,#0D1F35,#111827)",borderBottom:"1px solid #1F2937",padding:"16px 28px",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:"10px"});
+  var hl=div({display:"flex",alignItems:"center",gap:"12px"});
+  hl.innerHTML='<span style="font-size:34px">💖</span>';
+  var ht=div({});
+  ht.appendChild(mk("h1",{style:{fontSize:"1.3rem",color:"#2DD4BF",margin:"0 0 2px 0"}},"Heart Heroes — Teacher Dashboard"));
+  ht.appendChild(mk("p",{style:{color:"#4B5563",fontSize:"12px",margin:0}},"Welcome, "+S.user.name+" · Year 8 Form Y08I"));
+  hl.appendChild(ht); hdr.appendChild(hl);
+  var hr=div({display:"flex",gap:"10px"});
+  hr.appendChild(btn("↻ Refresh",{padding:"8px 16px",background:"#1F2937",color:"#9CA3AF",fontSize:"13px",fontWeight:700,borderRadius:"12px",border:"none",cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){render();}));
+  hr.appendChild(btn("Logout",{padding:"8px 16px",background:"#1C0808",color:"#FCA5A5",fontSize:"13px",fontWeight:700,borderRadius:"12px",border:"none",cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){clearInterval(refreshTimer);setState({screen:"login",user:null,role:null});}));
+  hdr.appendChild(hr); page.appendChild(hdr);
+
+  // Stats
+  var stats=div({display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"12px",padding:"18px 28px"});
+  [["Total Students",STUDENTS.length,"#94A3B8"],["Game Active",active,"#2DD4BF"],["In Progress",inProg,"#F59E0B"],["Completed",done,"#10B981"]].forEach(function(row){
+    var sc=div({background:"#111827",borderRadius:"16px",border:"1px solid #1F2937",padding:"16px",textAlign:"center"});
+    var num=div({fontFamily:"'Fredoka One',cursive",fontSize:"2rem",color:row[2]}); num.textContent=row[1];
+    sc.appendChild(num);
+    sc.appendChild(mk("p",{style:{fontSize:"12px",color:"#4B5563",marginTop:"4px"}},row[0]));
+    stats.appendChild(sc);
+  });
+  page.appendChild(stats);
+
+  // Tabs
+  var tabBar=div({padding:"0 28px",borderBottom:"1px solid #1F2937",display:"flex"});
+  [["control","🎮 Game Control"],["progress","📊 Progress"],["leaderboard","🏆 Leaderboard"],["passwords","🔑 Passwords"]].forEach(function(pair){
+    var b=mk("button",{className:"tab-btn"+(tab===pair[0]?" active":""),onClick:function(){setState({teacherTab:pair[0]});}},pair[1]);
+    tabBar.appendChild(b);
+  });
+  page.appendChild(tabBar);
+
+  var body=div({padding:"22px 28px",overflowY:"auto",maxHeight:"calc(100vh - 270px)"});
+
+  if(tab==="control"){
+    var gc=div({background:"#111827",borderRadius:"16px",border:"1px solid #1F2937",padding:"22px 24px",marginBottom:"16px",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:"12px"});
+    var gcl=div({});
+    gcl.appendChild(mk("h3",{style:{color:"#F1F5F9",marginBottom:"4px",fontSize:"1.05rem"}},"🌍 Enable for ALL Students"));
+    gcl.appendChild(mk("p",{style:{color:"#4B5563",fontSize:"13px"}},"When ON — every student in Y08I can play immediately"));
+    gc.appendChild(gcl);
+    var gcr=div({display:"flex",gap:"10px",alignItems:"center"});
+    gcr.appendChild(btn("⚠ Reset All Progress",{padding:"9px 16px",background:"#1C0808",color:"#FCA5A5",fontSize:"12px",fontWeight:800,borderRadius:"10px",border:"1px solid #7F1D1D",cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){STUDENTS.forEach(function(s){delProg(s.id);});render();}));
+    gcr.appendChild(btn(ctrl.globalOn?"✓ ALL ON":"○ ALL OFF",{padding:"11px 28px",fontSize:"14px",fontWeight:800,borderRadius:"12px",background:ctrl.globalOn?"#064E3B":"#1F2937",color:ctrl.globalOn?"#10B981":"#9CA3AF",border:"2px solid "+(ctrl.globalOn?"#10B981":"#374151"),cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){var n=Object.assign({},ctrl,{globalOn:!ctrl.globalOn});saveCtrl(n);render();}));
+    gc.appendChild(gcr); body.appendChild(gc);
+    body.appendChild(mk("p",{style:{color:"#4B5563",fontSize:"11px",fontWeight:700,letterSpacing:"1px",marginBottom:"10px"}},"INDIVIDUAL CONTROLS"+(ctrl.globalOn?" (Global is ON — overrides all)":"")));
+    var grid=div({display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:"10px"});
+    STUDENTS.forEach(function(s){
+      var a=ctrl.globalOn||ctrl.students[s.id]==="on";
+      var pp=allProg[s.id]; var sc=(pp.stageScores||[]).length;
+      var row=div({background:"#111827",borderRadius:"14px",border:"1px solid #1F2937",borderLeft:"3px solid "+(a?"#2DD4BF":"#1F2937"),padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"});
+      var rl=div({});
+      rl.appendChild(mk("div",{style:{fontWeight:700,color:"#F1F5F9",fontSize:"13px"}},s.full));
+      rl.appendChild(mk("div",{style:{fontSize:"11px",color:"#4B5563",marginTop:"2px"}},pp.completed?"✅ Completed":sc>0?"Stage "+sc+"/5 · "+(pp.totalScore||0)+"pts":"Not started"));
+      row.appendChild(rl);
+      var rr=div({display:"flex",gap:"6px"});
+      if(!ctrl.globalOn){
+        (function(sid,isActive){
+          rr.appendChild(btn(isActive?"ON":"OFF",{padding:"5px 12px",fontSize:"12px",fontWeight:800,borderRadius:"8px",background:isActive?"#022C22":"#1F2937",color:isActive?"#10B981":"#6B7280",border:"1px solid "+(isActive?"#10B981":"#374151"),cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){var ss=Object.assign({},ctrl.students);ss[sid]=isActive?"off":"on";saveCtrl(Object.assign({},ctrl,{students:ss}));render();}));
+        })(s.id,a);
+      }
+      (function(sid){
+        rr.appendChild(btn("↺",{padding:"5px 10px",fontSize:"12px",fontWeight:800,borderRadius:"8px",background:"#1F2937",color:"#F87171",border:"1px solid #374151",cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){delProg(sid);render();}));
+      })(s.id);
+      row.appendChild(rr); grid.appendChild(row);
+    });
+    body.appendChild(grid);
+  }
+
+  if(tab==="progress"){
+    var wrap=div({overflowX:"auto"});
+    var tbl=mk("table",{});
+    var thead=mk("thead",{}); var hr2=mk("tr",{});
+    ["STUDENT","STATUS","🌱 KS","💙 EE","🤝 RR","⭐ HC","🏆 HH","TOTAL /250"].forEach(function(h){hr2.appendChild(mk("th",{},h));});
+    thead.appendChild(hr2); tbl.appendChild(thead);
+    var tbody=mk("tbody",{});
+    STUDENTS.forEach(function(s){
+      var pp=allProg[s.id]; var sc=pp.stageScores||[]; var tot=sc.reduce(function(a,b){return a+b;},0);
+      var tr=mk("tr",{});
+      tr.appendChild(mk("td",{style:{color:"#F1F5F9",fontWeight:700}},s.full));
+      var badge=mk("span",{style:{padding:"3px 10px",borderRadius:"20px",fontSize:"11px",fontWeight:700,background:pp.completed?"#022C22":sc.length>0?"#0C1E3A":"#1F2937",color:pp.completed?"#10B981":sc.length>0?"#3B82F6":"#4B5563"}},pp.completed?"✅ Done":sc.length>0?"Playing":"—");
+      var statusTd=mk("td",{}); statusTd.appendChild(badge); tr.appendChild(statusTd);
+      for(var i=0;i<5;i++) tr.appendChild(mk("td",{style:{color:sc[i]!==undefined?"#2DD4BF":"#374151"}},sc[i]!==undefined?sc[i]+"/50":"—"));
+      tr.appendChild(mk("td",{style:{color:"#FBBF24",fontWeight:700}},tot>0?""+tot:"—"));
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody); wrap.appendChild(tbl); body.appendChild(wrap);
+  }
+
+  if(tab==="leaderboard"){
+    body.appendChild(renderLeaderboardContent(null,true));
+  }
+
+  if(tab==="passwords"){
+    var warn=div({background:"#1C1200",border:"1px solid #451A03",borderRadius:"12px",padding:"12px 18px",marginBottom:"16px"});
+    warn.innerHTML="⚠️ <strong style='color:#FBBF24'>Confidential:</strong> <span style='color:#92400E;font-size:13px'>Share each password only with the individual student.</span>";
+    body.appendChild(warn);
+    var tc=div({background:"#111827",borderRadius:"14px",border:"1px solid #1F2937",borderLeft:"3px solid #7C3AED",padding:"14px 20px",marginBottom:"14px"});
+    tc.appendChild(mk("div",{style:{fontWeight:700,color:"#F1F5F9",marginBottom:"6px",fontSize:"13px"}},"Teacher Login"));
+    tc.innerHTML+='<div style="font-size:13px;color:#6B7280">Username: <code style="background:#080C14;color:#2DD4BF;padding:2px 8px;border-radius:4px;font-family:monospace">sushil.verma</code> &nbsp; Password: <code style="background:#080C14;color:#2DD4BF;padding:2px 8px;border-radius:4px;font-family:monospace">Teacher@GEMS2024</code></div>';
+    body.appendChild(tc);
+    var pgrid=div({display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:"8px"});
+    STUDENTS.forEach(function(s){
+      var pw=s.name.toLowerCase()+"#"+s.id.replace("s","").padStart(4,"0");
+      var row=div({background:"#111827",borderRadius:"14px",border:"1px solid #1F2937",padding:"11px 16px",display:"flex",justifyContent:"space-between",alignItems:"center",gap:"12px"});
+      var rl=div({});
+      rl.appendChild(mk("div",{style:{fontWeight:700,color:"#F1F5F9",fontSize:"13px"}},s.full));
+      rl.appendChild(mk("div",{style:{fontSize:"11px",color:"#4B5563",marginTop:"2px"}},"Select name to login"));
+      row.appendChild(rl);
+      row.appendChild(mk("code",{style:{background:"#080C14",color:"#2DD4BF",padding:"5px 12px",borderRadius:"8px",fontSize:"12px",border:"1px solid #1F2937",fontFamily:"monospace",whiteSpace:"nowrap"}},pw));
+      pgrid.appendChild(row);
+    });
+    body.appendChild(pgrid);
+  }
+
+  page.appendChild(body);
+  return page;
+}
+
+// ══════════════════════════════════════════
+// RENDER STAGE MAP
+// ══════════════════════════════════════════
+function renderStageMap(){
+  var prog=getProgOrDefault(S.user.id);
+  var page=div({minHeight:"100vh",background:"#080C14",padding:"20px"});
+
+  var topbar=div({display:"flex",justifyContent:"space-between",alignItems:"center",maxWidth:"920px",margin:"0 auto 24px",flexWrap:"wrap",gap:"10px"});
+  var tl=div({display:"flex",alignItems:"center",gap:"10px"});
+  tl.innerHTML='<span style="font-size:28px">💖</span>';
+  var tt=div({});
+  tt.appendChild(mk("h1",{style:{fontSize:"1.25rem",color:"#2DD4BF",margin:0}},"Heart Heroes"));
+  tt.appendChild(mk("p",{style:{color:"#4B5563",fontSize:"12px",margin:0}},S.user.full+" · Year 8"));
+  tl.appendChild(tt); topbar.appendChild(tl);
+  var tr2=div({display:"flex",gap:"10px",alignItems:"center"});
+  var ptsdiv=div({background:"#111827",padding:"6px 14px",borderRadius:"20px",color:"#FBBF24",fontSize:"14px",fontWeight:700});
+  ptsdiv.textContent="⭐ "+(prog.totalScore||0)+" pts";
+  tr2.appendChild(ptsdiv);
+  tr2.appendChild(btn("🏆 Leaderboard",{padding:"7px 14px",background:"#111827",color:"#FBBF24",fontSize:"13px",fontWeight:700,borderRadius:"10px",border:"1px solid #374151",cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){setState({screen:"leaderboard"});}));
+  tr2.appendChild(btn("Exit",{padding:"7px 14px",background:"#111827",color:"#4B5563",fontSize:"13px",fontWeight:700,borderRadius:"10px",border:"none",cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){clearInterval(refreshTimer);setState({screen:"login",user:null,role:null});}));
+  topbar.appendChild(tr2); page.appendChild(topbar);
+
+  var tb=div({textAlign:"center",maxWidth:"920px",margin:"0 auto 24px"});
+  tb.appendChild(mk("h2",{style:{fontSize:"1.6rem",color:"#F1F5F9",marginBottom:"6px"}},"Your Journey, "+S.user.name+"!"));
+  tb.appendChild(mk("p",{style:{color:"#4B5563",fontSize:"14px"}},"Complete all 5 stages to earn your Heart Hero badge"));
+
+  var dots=div({display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",maxWidth:"380px",margin:"14px auto 0"});
+  STAGES.forEach(function(st,i){
+    var done=(prog.stageScores||[])[i]!==undefined;
+    var cur=prog.stage===st.id;
+    var dot=mk("div",{style:{width:"36px",height:"36px",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:done?"#064E3B":cur?st.color+"33":"#1F2937",border:"2px solid "+(done?"#10B981":cur?st.color:"#374151"),fontSize:"15px",flexShrink:0}},done?"✓":st.emoji);
+    dots.appendChild(dot);
+    if(i<4) dots.appendChild(mk("div",{style:{height:"2px",flex:1,background:done?"#10B981":"#1F2937"}}));
+  });
+  tb.appendChild(dots); page.appendChild(tb);
+
+  var grid=div({display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:"14px",maxWidth:"920px",margin:"0 auto"});
+  STAGES.forEach(function(st,i){
+    var done=(prog.stageScores||[])[i]!==undefined;
+    var cur=prog.stage===st.id;
+    var locked=st.id>prog.stage;
+    var sc=prog.stageScores?prog.stageScores[i]:undefined;
+
+    var c=div({background:"#111827",borderRadius:"20px",border:"2px solid "+(cur&&!done?st.color:"#1F2937"),padding:"24px",cursor:locked?"not-allowed":"pointer",opacity:locked?"0.35":"1",boxShadow:"0 4px 24px rgba(0,0,0,.4)",transition:"all .2s"});
+    var emo=div({fontSize:"48px",marginBottom:"12px"}); emo.textContent=st.emoji;
+    c.appendChild(emo);
+    c.appendChild(mk("h3",{style:{color:st.color,marginBottom:"4px",fontSize:"1rem"}},st.title));
+    c.appendChild(mk("p",{style:{color:"#4B5563",fontSize:"12px",marginBottom:"14px",lineHeight:"1.5"}},st.tagline));
+
+    if(done&&sc!==undefined){
+      var stars=div({display:"flex",gap:"3px",alignItems:"center"});
+      for(var n=1;n<=5;n++){var st2=mk("span",{style:{fontSize:"20px",color:sc>=n*10?"#FBBF24":"#1F2937"}},"★");stars.appendChild(st2);}
+      stars.appendChild(mk("span",{style:{color:"#4B5563",fontSize:"12px",marginLeft:"4px"}},sc+"/50"));
+      c.appendChild(stars);
+    }
+    if(cur&&!done){
+      var badge=mk("div",{style:{display:"inline-block",background:st.color,color:"#080C14",padding:"5px 14px",borderRadius:"20px",fontSize:"12px",fontWeight:800,marginTop:"6px"}},"START →");
+      c.appendChild(badge);
+    }
+    if(done) c.appendChild(mk("p",{style:{color:"#10B981",fontSize:"12px",fontWeight:700,marginTop:"6px"}},"✅ Complete · Tap to replay"));
+    if(locked) c.appendChild(mk("p",{style:{color:"#374151",fontSize:"12px",marginTop:"6px"}},"🔒 Complete previous stage first"));
+
+    if(!locked){
+      (function(stageId){
+        c.addEventListener("mouseenter",function(){this.style.transform="translateY(-3px)";});
+        c.addEventListener("mouseleave",function(){this.style.transform="";});
+        c.addEventListener("click",function(){setState({screen:"playing",stageId:stageId,qIdx:0,selectedOpt:null,revealed:false,stagePts:0});});
+      })(st.id);
+    }
+    grid.appendChild(c);
+  });
+  page.appendChild(grid);
+  return page;
+}
+
+// ══════════════════════════════════════════
+// RENDER PLAYING
+// ══════════════════════════════════════════
+function renderPlaying(){
+  var st=STAGES[S.stageId-1];
+  var q=st.questions[S.qIdx];
+  var page=div({minHeight:"100vh",background:"#080C14",padding:"20px",display:"flex",flexDirection:"column",alignItems:"center"});
+
+  var topW=div({width:"100%",maxWidth:"660px",marginBottom:"18px"});
+  var topRow=div({display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"8px"});
+  var tl=div({display:"flex",alignItems:"center",gap:"10px"});
+  var emo=mk("span",{style:{fontSize:"24px"}},st.emoji);
+  var tlt=div({});
+  tlt.appendChild(mk("div",{style:{color:st.color,fontWeight:700,fontSize:"14px"}},st.title));
+  tlt.appendChild(mk("div",{style:{color:"#4B5563",fontSize:"12px"}},"Question "+(S.qIdx+1)+" of "+st.questions.length));
+  tl.appendChild(emo); tl.appendChild(tlt); topRow.appendChild(tl);
+  var ptsdiv=div({background:"#111827",padding:"6px 14px",borderRadius:"20px",color:"#FBBF24",fontSize:"14px",fontWeight:700});
+  ptsdiv.textContent=S.stagePts+" pts";
+  topRow.appendChild(ptsdiv); topW.appendChild(topRow);
+
+  var barEl=mk("div",{style:{height:"8px",borderRadius:"4px",background:"#1F2937",overflow:"hidden"}});
+  var barFill=mk("div",{style:{height:"100%",borderRadius:"4px",background:st.color,width:((S.qIdx/st.questions.length)*100)+"%",transition:"width .7s ease"}});
+  barEl.appendChild(barFill); topW.appendChild(barEl);
+  page.appendChild(topW);
+
+  var c=card({width:"100%",maxWidth:"660px",padding:"28px"});
+  c.className="fadeUp";
+
+  var qBox=div({background:st.dark,borderRadius:"14px",padding:"18px 22px",marginBottom:"22px",borderLeft:"4px solid "+st.color});
+  qBox.appendChild(mk("p",{style:{color:"#F1F5F9",fontSize:"16px",lineHeight:"1.65",fontWeight:600}},q.q));
+  c.appendChild(qBox);
+
+  q.opts.forEach(function(opt,i){
+    var bg="#1F2937",bord="#374151",col="#D1D5DB";
+    if(S.revealed){
+      if(i===q.correct){bg="#022C22";bord="#10B981";col="#6EE7B7";}
+      else if(i===S.selectedOpt&&i!==q.correct){bg="#1C0808";bord="#7F1D1D";col="#FCA5A5";}
+    } else if(S.selectedOpt===i){bg="#0C1E3A";bord="#3B82F6";col="#93C5FD";}
+
+    var b=mk("button",{
+      disabled:S.revealed,
+      style:{width:"100%",textAlign:"left",padding:"14px 18px",borderRadius:"12px",fontSize:"15px",fontFamily:"'Nunito',sans-serif",fontWeight:700,lineHeight:"1.45",cursor:S.revealed?"default":"pointer",border:"2px solid "+bord,background:bg,color:col,marginBottom:"10px",display:"block",transition:"all .18s"},
+      onClick:function(){if(!S.revealed) setState({selectedOpt:i});}
+    });
+    var lbl2=mk("span",{style:{background:"#080C14",padding:"2px 9px",borderRadius:"6px",marginRight:"10px",fontSize:"12px",fontWeight:700,color:"#6B7280"}},"ABC"[i]);
+    b.appendChild(lbl2);
+    b.appendChild(document.createTextNode(opt+(S.revealed&&i===q.correct?" ✓":"")+(S.revealed&&i===S.selectedOpt&&i!==q.correct?" ✗":"")));
+    c.appendChild(b);
+  });
+
+  if(S.revealed){
+    var exp=div({background:"#071C12",border:"1px solid #065F46",borderRadius:"12px",padding:"14px 18px",marginTop:"4px",marginBottom:"14px"});
+    exp.className="fadeUp";
+    exp.appendChild(mk("p",{style:{color:"#6EE7B7",fontSize:"14px",lineHeight:"1.6"}},"💡 Why? "+q.explain));
+    c.appendChild(exp);
+  }
+
+  var btmRow=div({marginTop:"18px",display:"flex",justifyContent:"space-between",alignItems:"center"});
+  btmRow.appendChild(btn("← Stage Map",{padding:"9px 16px",background:"transparent",color:"#374151",fontSize:"13px",fontWeight:700,border:"none",cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){setState({screen:"stagemap"});}));
+
+  if(!S.revealed){
+    btmRow.appendChild(btn("Submit Answer",{padding:"11px 28px",fontSize:"15px",fontWeight:800,borderRadius:"12px",background:S.selectedOpt!==null?st.color:"#374151",color:"#fff",border:"none",cursor:S.selectedOpt!==null?"pointer":"not-allowed",fontFamily:"'Nunito',sans-serif",transition:"all .18s"},function(){
+      var correct=S.selectedOpt===q.correct;
+      setState({revealed:true,stagePts:S.stagePts+(correct?10:0)});
+    },S.selectedOpt===null));
+  } else {
+    var isLast=S.qIdx+1>=st.questions.length;
+    btmRow.appendChild(btn(isLast?"Finish Stage →":"Next →",{padding:"11px 28px",fontSize:"15px",fontWeight:800,borderRadius:"12px",background:"linear-gradient(135deg,"+st.color+",#0EA5E9)",color:"#fff",border:"none",cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){
+      if(isLast) setState({screen:"stagewin"});
+      else setState({qIdx:S.qIdx+1,selectedOpt:null,revealed:false});
+    }));
+  }
+  c.appendChild(btmRow);
+  page.appendChild(c);
+  return page;
+}
+
+// ══════════════════════════════════════════
+// RENDER STAGE WIN
+// ══════════════════════════════════════════
+function renderStageWin(){
+  var st=STAGES[S.stageId-1];
+  var isLast=S.stageId===5;
+  var page=div({minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"#080C14",padding:"20px",textAlign:"center"});
+
+  var ico=div({fontSize:"90px",marginBottom:"14px"}); ico.textContent=st.emoji; ico.className="popIn";
+  page.appendChild(ico);
+  page.appendChild(mk("h1",{style:{fontSize:"2.2rem",color:st.color,marginBottom:"8px"}},"Stage Complete!"));
+  page.appendChild(mk("p",{style:{color:"#94A3B8",marginBottom:"8px",fontSize:"15px"}},st.title));
+  page.appendChild(mk("p",{style:{color:"#FBBF24",fontSize:"14px",marginBottom:"26px",fontWeight:700}},"You earned the "+st.badge+" badge! 🏅"));
+
+  var sc=card({padding:"28px 48px",marginBottom:"22px",minWidth:"250px"});
+  var sn=div({fontFamily:"'Fredoka One',cursive",fontSize:"3.5rem",color:"#FBBF24"}); sn.textContent=S.stagePts;
+  sc.appendChild(sn);
+  sc.appendChild(mk("p",{style:{color:"#4B5563",marginBottom:"14px",fontSize:"13px"}},"out of 50 points"));
+  var stars=div({display:"flex",gap:"6px",justifyContent:"center"});
+  for(var n=1;n<=5;n++) stars.appendChild(mk("span",{style:{fontSize:"28px",color:S.stagePts>=n*10?"#FBBF24":"#1F2937"}},"★"));
+  sc.appendChild(stars); page.appendChild(sc);
+
+  page.appendChild(btn(isLast?"🏆 Claim Your Hero Badge!":"Continue to Stage "+(S.stageId+1)+" →",
+    {padding:"14px 42px",fontSize:"16px",fontWeight:800,borderRadius:"14px",background:"linear-gradient(135deg,"+st.color+",#0EA5E9)",color:"#fff",border:"none",cursor:"pointer",fontFamily:"'Nunito',sans-serif"},
+    function(){
+      var prog=getProgOrDefault(S.user.id);
+      var newSc=(prog.stageScores||[]).slice();
+      newSc[S.stageId-1]=S.stagePts;
+      var tot=newSc.reduce(function(a,b){return a+b;},0);
+      var np=Object.assign({},prog,{stage:isLast?5:S.stageId+1,stageScores:newSc,totalScore:tot,completed:isLast,badges:(prog.badges||[]).concat([st.badge])});
+      saveProg(S.user.id,np);
+      setState({screen:isLast?"gameover":"stagemap"});
+    }));
+  return page;
+}
+
+// ══════════════════════════════════════════
+// RENDER GAME OVER
+// ══════════════════════════════════════════
+function renderGameOver(){
+  var prog=getProgOrDefault(S.user.id);
+  var tot=prog.totalScore||0; var pct=Math.round(tot/250*100);
+  var page=div({minHeight:"100vh",background:"radial-gradient(ellipse at 50% 0%,#1A0D00 0%,#080C14 70%)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"20px",textAlign:"center"});
+
+  var ico=div({fontSize:"100px",marginBottom:"14px"}); ico.textContent="🏆"; ico.className="popIn";
+  page.appendChild(ico);
+  page.appendChild(mk("h1",{style:{fontSize:"2.8rem",color:"#FBBF24",marginBottom:"8px"}},"Congratulations!"));
+  page.appendChild(mk("h2",{style:{fontSize:"1.5rem",color:"#F1F5F9",marginBottom:"8px",fontFamily:"'Fredoka One',cursive"}},S.user.name+", you're a Heart Hero!"));
+  page.appendChild(mk("p",{style:{color:"#4B5563",maxWidth:"480px",lineHeight:"1.7",marginBottom:"26px",fontSize:"15px"}},"You've completed all 5 stages. Carry kindness, empathy, and respect with you every single day."));
+
+  var sc=card({padding:"30px 50px",marginBottom:"22px"});
+  var sn=div({fontFamily:"'Fredoka One',cursive",fontSize:"4rem",color:"#FBBF24"}); sn.textContent=tot;
+  sc.appendChild(sn);
+  sc.appendChild(mk("p",{style:{color:"#4B5563",marginBottom:"16px",fontSize:"13px"}},"out of 250 total points · "+pct+"%"));
+  var starsRow=div({display:"flex",gap:"8px",justifyContent:"center",marginBottom:"22px"});
+  for(var n=1;n<=5;n++) starsRow.appendChild(mk("span",{style:{fontSize:"30px",color:pct>=n*20?"#FBBF24":"#1F2937"}},"★"));
+  sc.appendChild(starsRow);
+  var badges=div({display:"flex",flexWrap:"wrap",gap:"8px",justifyContent:"center"});
+  STAGES.forEach(function(s){
+    var b=mk("div",{style:{background:s.dark,color:s.color,padding:"6px 14px",borderRadius:"20px",fontSize:"12px",fontWeight:800,border:"1px solid "+s.color,display:"inline-block"}},s.emoji+" "+s.badge);
+    badges.appendChild(b);
+  });
+  sc.appendChild(badges); page.appendChild(sc);
+
+  page.appendChild(mk("p",{style:{color:"#374151",fontSize:"13px",marginBottom:"16px"}},"Your score has been saved. Mr. Verma can see your results."));
+  page.appendChild(btn("Back to Login",{padding:"13px 36px",background:"linear-gradient(135deg,#FBBF24,#F97316)",color:"#080C14",fontSize:"15px",fontWeight:800,borderRadius:"14px",border:"none",cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){clearInterval(refreshTimer);setState({screen:"login",user:null,role:null});}));
+  return page;
+}
+
+// ══════════════════════════════════════════
+// LEADERBOARD HELPERS
+// ══════════════════════════════════════════
+function getLeaderboardData(){
+  return STUDENTS.map(function(s){
+    var p=getProgOrDefault(s.id);
+    var sc=p.stageScores||[];
+    var stagesCompleted=sc.length;
+    var total=p.totalScore||0;
+    return {id:s.id,full:s.full,name:s.name,total:total,stagesCompleted:stagesCompleted,completed:p.completed,stageScores:sc};
+  }).sort(function(a,b){
+    if(b.total!==a.total) return b.total-a.total;
+    if(b.stagesCompleted!==a.stagesCompleted) return b.stagesCompleted-a.stagesCompleted;
+    return a.full.localeCompare(b.full);
+  });
+}
+
+function getMedal(rank){
+  if(rank===1) return "🥇";
+  if(rank===2) return "🥈";
+  if(rank===3) return "🥉";
+  return rank;
+}
+
+function renderLeaderboardContent(currentUserId, isTeacher){
+  var data=getLeaderboardData();
+  var started=data.filter(function(d){return d.total>0;});
+  var wrap=div({});
+
+  // Header
+  var hdrDiv=div({textAlign:"center",marginBottom:"22px"});
+  hdrDiv.appendChild(mk("h2",{style:{fontSize:"1.6rem",color:"#FBBF24",marginBottom:"6px"}},"🏆 Live Leaderboard"));
+  hdrDiv.appendChild(mk("p",{style:{color:"#4B5563",fontSize:"13px"}},"Rankings update as students complete stages · "+(isTeacher?"All 31 students":"Your class · Year 8 Y08I")));
+  wrap.appendChild(hdrDiv);
+
+  // Top 3 podium (only if data)
+  if(started.length>=1){
+    var podiumData=started.slice(0,3);
+    var podium=div({display:"flex",alignItems:"flex-end",justifyContent:"center",gap:"12px",marginBottom:"28px",maxWidth:"600px",margin:"0 auto 28px"});
+
+    var order=podiumData.length>=2?[1,0,2]:[0]; // silver, gold, bronze order for visual
+    if(podiumData.length===1) order=[0];
+    if(podiumData.length===2) order=[1,0];
+
+    order.forEach(function(idx){
+      if(!podiumData[idx]) return;
+      var d=podiumData[idx];
+      var rank=idx+1;
+      var heights=["110px","140px","90px"];
+      var colors=["#C0C0C0","#FBBF24","#CD7F32"];
+      var bgColors=["#1a2030","#1a1a00","#1a0f00"];
+      var h2=heights[idx]||"90px";
+      var col=colors[idx]||"#6B7280";
+      var bg=bgColors[idx]||"#111827";
+      var isMe=currentUserId&&d.id===currentUserId;
+
+      var block=div({display:"flex",flexDirection:"column",alignItems:"center",flex:1,maxWidth:"180px"});
+      var nameDiv=mk("div",{style:{color:isMe?"#2DD4BF":col,fontSize:"13px",fontWeight:800,marginBottom:"6px",textAlign:"center",maxWidth:"130px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},d.name);
+      var scoreDiv=mk("div",{style:{color:"#9CA3AF",fontSize:"12px",marginBottom:"8px"}},"⭐ "+d.total+" pts");
+      var pillar=div({width:"100%",height:h2,background:bg,border:"2px solid "+col,borderRadius:"12px 12px 0 0",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:"4px"});
+      var medal=mk("div",{style:{fontSize:"32px"}},rank===1?"🥇":rank===2?"🥈":"🥉");
+      var rankNum=mk("div",{style:{fontFamily:"'Fredoka One',cursive",color:col,fontSize:"1.4rem"}},""+d.total);
+      pillar.appendChild(medal); pillar.appendChild(rankNum);
+      if(isMe){
+        var youTag=mk("div",{style:{background:"#2DD4BF",color:"#080C14",fontSize:"10px",fontWeight:800,padding:"2px 8px",borderRadius:"8px",marginTop:"3px"}},"YOU");
+        pillar.appendChild(youTag);
+      }
+      block.appendChild(nameDiv); block.appendChild(scoreDiv); block.appendChild(pillar);
+      podium.appendChild(block);
+    });
+    wrap.appendChild(podium);
+  }
+
+  // Full rankings table
+  var tableWrap=div({overflowX:"auto"});
+  var tbl=mk("table",{});
+  var thead=mk("thead",{}); var hr=mk("tr",{});
+  ["RANK","STUDENT","TOTAL","STAGES","PROGRESS","BADGES"].forEach(function(h){hr.appendChild(mk("th",{},h));});
+  thead.appendChild(hr); tbl.appendChild(thead);
+
+  var tbody=mk("tbody",{});
+  var rank=1;
+  data.forEach(function(d){
+    var isMe=currentUserId&&d.id===currentUserId;
+    var hasData=d.total>0||d.stagesCompleted>0;
+    var tr=mk("tr",{style:{background:isMe?"#0C2A26":"transparent",transition:"background .2s"}});
+    if(!isMe){
+      tr.addEventListener("mouseenter",function(){this.style.background="#111827";});
+      tr.addEventListener("mouseleave",function(){this.style.background="transparent";});
+    }
+
+    // Rank
+    var rankCell=mk("td",{style:{textAlign:"center"}});
+    var rankContent=mk("div",{style:{fontFamily:"'Fredoka One',cursive",fontSize:rank<=3?"1.3rem":"1rem",color:rank===1?"#FBBF24":rank===2?"#C0C0C0":rank===3?"#CD7F32":"#4B5563",fontWeight:700}},hasData?getMedal(rank):"—");
+    rankCell.appendChild(rankContent); tr.appendChild(rankCell);
+
+    // Name
+    var nameCell=mk("td",{});
+    var nameDiv=mk("div",{style:{fontWeight:700,color:isMe?"#2DD4BF":"#F1F5F9",fontSize:"13px"}},d.full+(isMe?" (You)":""));
+    if(d.completed) nameDiv.appendChild(mk("span",{style:{marginLeft:"6px",fontSize:"11px",color:"#10B981"}},"✅"));
+    nameCell.appendChild(nameDiv); tr.appendChild(nameCell);
+
+    // Total score
+    tr.appendChild(mk("td",{style:{color:"#FBBF24",fontWeight:800,fontSize:"14px",fontFamily:"'Fredoka One',cursive"}},hasData?d.total+" pts":"—"));
+
+    // Stages
+    var stageCell=mk("td",{style:{color:"#94A3B8",fontSize:"13px"}});
+    stageCell.textContent=hasData?d.stagesCompleted+"/5":"—";
+    tr.appendChild(stageCell);
+
+    // Mini progress bar
+    var progCell=mk("td",{style:{minWidth:"100px"}});
+    var pct=Math.round((d.total/250)*100);
+    var barWrap=mk("div",{style:{height:"6px",borderRadius:"3px",background:"#1F2937",overflow:"hidden",width:"100px"}});
+    var barFill=mk("div",{style:{height:"100%",borderRadius:"3px",width:pct+"%",background:d.completed?"#10B981":"linear-gradient(90deg,#2DD4BF,#3B82F6)",transition:"width .7s ease"}});
+    barWrap.appendChild(barFill);
+    var pctLbl=mk("div",{style:{color:"#4B5563",fontSize:"10px",marginTop:"2px"}},hasData?pct+"%":"");
+    progCell.appendChild(barWrap); progCell.appendChild(pctLbl); tr.appendChild(progCell);
+
+    // Stage emojis
+    var badgeCell=mk("td",{});
+    var badgeRow=div({display:"flex",gap:"3px",flexWrap:"wrap"});
+    STAGES.forEach(function(st,i){
+      var earned=d.stageScores[i]!==undefined;
+      var b=mk("span",{style:{fontSize:"14px",opacity:earned?"1":"0.2",title:st.badge}},st.emoji);
+      badgeRow.appendChild(b);
+    });
+    badgeCell.appendChild(badgeRow); tr.appendChild(badgeCell);
+
+    if(hasData) rank++;
+    tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody); tableWrap.appendChild(tbl);
+  wrap.appendChild(tableWrap);
+
+  // Summary stats
+  var notStarted=data.filter(function(d){return d.total===0;}).length;
+  var inProg=data.filter(function(d){return d.total>0&&!d.completed;}).length;
+  var comp=data.filter(function(d){return d.completed;}).length;
+  var avgScore=started.length>0?Math.round(started.reduce(function(a,d){return a+d.total;},0)/started.length):0;
+  var statsRow=div({display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"10px",marginTop:"20px"});
+  [["Not Started",notStarted,"#374151"],["In Progress",inProg,"#F59E0B"],["Completed",comp,"#10B981"],["Avg Score",avgScore+" pts","#2DD4BF"]].forEach(function(row){
+    var sc=div({background:"#111827",borderRadius:"12px",border:"1px solid #1F2937",padding:"12px",textAlign:"center"});
+    var num=div({fontFamily:"'Fredoka One',cursive",fontSize:"1.5rem",color:row[2]}); num.textContent=row[1];
+    sc.appendChild(num);
+    sc.appendChild(mk("p",{style:{fontSize:"11px",color:"#4B5563",marginTop:"2px"}},row[0]));
+    statsRow.appendChild(sc);
+  });
+  wrap.appendChild(statsRow);
+  return wrap;
+}
+
+function renderLeaderboardScreen(){
+  var page=div({minHeight:"100vh",background:"#080C14",padding:"20px"});
+
+  // Top bar
+  var topbar=div({display:"flex",justifyContent:"space-between",alignItems:"center",maxWidth:"920px",margin:"0 auto 24px",flexWrap:"wrap",gap:"10px"});
+  var tl=div({display:"flex",alignItems:"center",gap:"10px"});
+  tl.innerHTML='<span style="font-size:28px">💖</span>';
+  var tt=div({});
+  tt.appendChild(mk("h1",{style:{fontSize:"1.25rem",color:"#2DD4BF",margin:0}},"Heart Heroes"));
+  tt.appendChild(mk("p",{style:{color:"#4B5563",fontSize:"12px",margin:0}},S.user.full+" · Year 8"));
+  tl.appendChild(tt); topbar.appendChild(tl);
+
+  var tr2=div({display:"flex",gap:"10px",alignItems:"center"});
+  var prog=getProgOrDefault(S.user.id);
+  var ptsdiv=div({background:"#111827",padding:"6px 14px",borderRadius:"20px",color:"#FBBF24",fontSize:"14px",fontWeight:700});
+  ptsdiv.textContent="⭐ "+(prog.totalScore||0)+" pts";
+  tr2.appendChild(ptsdiv);
+  tr2.appendChild(btn("← Back to Game",{padding:"7px 14px",background:"linear-gradient(135deg,#2DD4BF,#0EA5E9)",color:"#080C14",fontSize:"13px",fontWeight:800,borderRadius:"10px",border:"none",cursor:"pointer",fontFamily:"'Nunito',sans-serif"},function(){setState({screen:"stagemap"});}));
+  topbar.appendChild(tr2);
+  page.appendChild(topbar);
+
+  var inner=div({maxWidth:"920px",margin:"0 auto"});
+  inner.appendChild(renderLeaderboardContent(S.user.id,false));
+  page.appendChild(inner);
+  return page;
+}
+
+// ══════════════════════════════════════════
+// TIMERS + MAIN RENDER
+// ══════════════════════════════════════════
+function startStudentRefresh(){
+  clearInterval(refreshTimer);
+  refreshTimer=setInterval(function(){
+    if(S.role==="student"&&S.screen==="waiting"&&canPlay(S.user.id)){setState({screen:"stagemap"});}
+  },5000);
+}
+
+function render(){
+  var app=document.getElementById("app");
+  app.innerHTML="";
+  var content;
+  if(S.screen==="login") content=renderLogin();
+  else if(S.screen==="waiting") content=renderWaiting();
+  else if(S.screen==="teacher") content=renderTeacher();
+  else if(S.screen==="stagemap") content=renderStageMap();
+  else if(S.screen==="playing") content=renderPlaying();
+  else if(S.screen==="leaderboard") content=renderLeaderboardScreen();
+  else if(S.screen==="stagewin") content=renderStageWin();
+  else if(S.screen==="gameover") content=renderGameOver();
+  else content=renderLogin();
+  app.appendChild(content);
+}
+
+render();
+</script>
+</body>
+</html>
